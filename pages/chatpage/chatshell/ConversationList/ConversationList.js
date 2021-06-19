@@ -3,24 +3,31 @@ import React, { useContext, useEffect, useState } from "react";
 import jwtDecode from "jwt-decode";
 import { MyContext } from "../../../../store/ContextProvider";
 import { remoteProxyURL } from "../../../../config";
+import { socket } from "../../../../web-sockets";
 
 // UI
 const ConversationList = () => {
   const { state, allAction } = useContext(MyContext);
+  const [sockets, setSockets] = useState([]);
   const [me, setMe] = useState({});
   useEffect(() => {
     let decoded = jwtDecode(window.localStorage.getItem("chatapptoken"));
     if (decoded.id) {
-      axios
-        .get(`${remoteProxyURL}/users/${decoded.id}`)
-        .then((resp) => {
-          setMe(resp.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      socket.on("connected", (data) => {
+        setSockets(data.sockets);
+        axios
+          .get(`${remoteProxyURL}/users/${decoded.id}`)
+          .then((resp) => {
+            setMe(resp.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
     }
   }, []);
+
+  //
   const conversationSetter = (userinfo) => {
     allAction.setactiveconversation(userinfo);
     let id1 = me.id;
@@ -32,6 +39,15 @@ const ConversationList = () => {
       (singleMessage) => singleMessage.conversationid === activeConversationID
     );
     allAction.setActiveMessages(activeConversation);
+  };
+  const isActive = (_id) => {
+    var i;
+    for (i = 0; i < sockets.length; i++) {
+      if (sockets[i].userid === _id) {
+        return true;
+      }
+    }
+    return false;
   };
   return (
     <div id="conversation-list">
@@ -55,7 +71,12 @@ const ConversationList = () => {
                 ) : (
                   <div className="defaultimg">
                     <span>{user.username ? user.username.charAt(0) : "A"}</span>
-                    <div className="active-status"></div>
+                    <div
+                      className="active-status"
+                      style={
+                        isActive(user._id) ? { background: "#1DBF73" } : {}
+                      }
+                    ></div>
                   </div>
                 )}
                 <div className="title-text">
@@ -63,6 +84,7 @@ const ConversationList = () => {
                 </div>
                 <div className="created-date">{"12:00"}</div>
                 <div className="conversation-message">
+                  {isActive(user._id)}
                   {"conversation.latestMessageText"}
                 </div>
               </div>
