@@ -4,7 +4,9 @@ import jwtDecode from "jwt-decode";
 import { MyContext } from "../../../../store/ContextProvider";
 import { remoteProxyURL } from "../../../../config";
 import { socket } from "../../../../web-sockets";
+import moment from "moment";
 
+moment(new Date());
 // UI
 const ConversationList = () => {
   const { state, allAction } = useContext(MyContext);
@@ -93,7 +95,13 @@ const ConversationList = () => {
                 <div className="title-text">
                   {user.username ? user.username : "N/A"}
                 </div>
-                <div className="created-date">{"12:00"}</div>
+                <div className="created-date">
+                  {findLastMessageBetweenMe(user)
+                    ? moment()
+                        .startOf()
+                        .fromNow(findLastMessageBetweenMe(user).time)
+                    : ""}
+                </div>
                 <div className="conversation-message">
                   {findLastMessageBetweenMe(user)
                     ? findLastMessageBetweenMe(user).body
