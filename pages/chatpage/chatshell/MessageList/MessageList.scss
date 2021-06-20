@@ -1,10 +1,16 @@
 #chat-message-list {
+    position: relative;
     grid-area: chat-message-list;
     display: flex;
     flex-direction: column-reverse;
     padding-top: 30px;
     padding: 20px;
     overflow-y: scroll;
+    .typingstatus {
+        position: absolute;
+        bottom: 15px;
+        width: 80px;
+    }
 }
 
 .imagealt {

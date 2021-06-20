@@ -28,8 +28,10 @@ const ChatForm = () => {
           : `${state.activeConversation.id}-${myID}`,
       time: new Date(),
     };
-    allAction.createmessage(message);
-    socket.emit("sendMessage", { message });
+    if (body) {
+      allAction.createmessage(message);
+      socket.emit("sendMessage", { message });
+    }
     setBody("");
   };
   const enterKeyDown = (e) => {
@@ -37,16 +39,20 @@ const ChatForm = () => {
       sendMessage();
     }
   };
+  const onChangeHandler = (e) => {
+    socket.emit("typing", {
+      senderid: myID,
+      receipientid: state.activeConversation.id,
+    });
+    setBody(e.target.value);
+  };
   return (
     <div>
       <div id="chat-form">
         <div className="form">
           <div className="input-group mb-3">
-            {/* <h3 onClick={(e) => allAction.createmessage({ body: "amain" })}>
-              val {state.length}{" "}
-            </h3> */}
             <input
-              onChange={(e) => setBody(e.target.value)}
+              onChange={(e) => onChangeHandler(e)}
               value={body}
               type="text"
               onKeyDown={(e) => enterKeyDown(e)}
