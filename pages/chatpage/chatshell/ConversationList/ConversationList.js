@@ -73,7 +73,9 @@ const ConversationList = () => {
               <div
                 onClick={(e) => conversationSetter(user)}
                 key={i}
-                className="conversation"
+                className={`conversation ${
+                  state.activeConversation.id === user.id ? "active" : ""
+                }`}
               >
                 {user.img ? (
                   <img
@@ -94,6 +96,7 @@ const ConversationList = () => {
                 )}
                 <div className="title-text">
                   {user.username ? user.username : "N/A"}
+                  {console.log("active between", state.activeConversation)}
                 </div>
                 <div className="created-date">
                   {findLastMessageBetweenMe(user)
